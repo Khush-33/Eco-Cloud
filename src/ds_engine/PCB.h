@@ -1,29 +1,23 @@
 #pragma once
+#include <iostream>
 #include <string>
-
 using namespace std;
 
-enum ProcessState { NEW, READY, RUNNING, WAITING, TERMINATED, GREEN_WAIT };
-
 struct PCB {
-    std::string job_id;   // e.g., "JOB_001"
-    int arrival_time;
+    string job_id;   
     int burst_time;
-    int priority;         // Standard OS priority
-    ProcessState state;
+    int memory_req;
     
-    // Eco-Cloud Research Attributes
-    double estimated_energy; 
-    double carbon_footprint;
-
-    // Constructor
-    PCB(string id, int arr, int burst, int prio, double energy) {
+    // CONSTRUCTOR: Expecting exactly 3 arguments (string, int, int)
+    PCB(string id, int burst, int mem) {
         job_id = id;
-        arrival_time = arr;
         burst_time = burst;
-        priority = prio;
-        estimated_energy = energy;
-        carbon_footprint = 0.0;
-        state = NEW;
+        memory_req = mem;
+    }
+
+    void printDetails() {
+        cout << "[Job ID: " << job_id 
+             << " | Burst: " << burst_time 
+             << " | Mem: " << memory_req << "MB]" << endl;
     }
 };
