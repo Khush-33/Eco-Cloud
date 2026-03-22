@@ -28,8 +28,9 @@ typedef struct {
     ProcessState state;
     PrivilegeMode mode;
     
-    // Eco-Profile
+    // Eco-Profile Tracking
     double carbon_footprint;
+    int energy_allocated;    // 1 if successful, 0 if denied
 } PCB;
 
 // Helper to convert state enum to string for printing
