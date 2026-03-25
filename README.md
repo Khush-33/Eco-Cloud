@@ -286,7 +286,7 @@ git checkout -b feature/your-task-name
         Prod->>Q: sem_wait(&empty_slots) -> PROCEED
         Prod->>Q: pthread_mutex_lock(&queue_mutex)
         
-        Q-->>Q: Insert PCB into Array
+        Q-->>Q: Insert PCB into Ready Queue
         Note over Q: [STATE: NEW] ➔ [STATE: READY]
         
         Q->>Prod: pthread_mutex_unlock(&queue_mutex)
@@ -306,7 +306,7 @@ git checkout -b feature/your-task-name
         Core1->>Q: sem_wait(&full_slots) -> PROCEED
         Core1->>Q: pthread_mutex_lock(&queue_mutex)
         
-        Q-->>Core1: Extract PCB from Array
+        Q-->>Core1: Extract PCB from Ready Queue
         Core1->>Q: pthread_mutex_unlock(&queue_mutex)
         Core1->>Prod: sem_post(&empty_slots) -> WAKES PRODUCER
     end
