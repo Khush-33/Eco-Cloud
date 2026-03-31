@@ -1,0 +1,11 @@
+# Phase 1: Claim-Evidence Table (D2)
+
+| Claim ID | Claim | Metric | Baseline | Dataset/Workload | Evidence Location | Confidence | Notes |
+|:---|:---|:---|:---|:---|:---|:---|:---|
+| **C1** | Cluster-wide carbon footprint reduction up to 41.2% (32.2% avg across 4 regions). | Total cluster carbon footprint (kg CO2) | Tiresias, EcoVisor, GAIA | 791 jobs from University production cluster (ResNet, GPT-2, etc.); Replayed over 4 regions' CIC | Figure 8 (a-d), Section 8.2 | High | Reduction directly correlated with regional carbon variance; maximum savings in Poland/UK (high peaks). |
+| **C2** | Reduction of carbon by 21% without temporal shifting (GREENns variant). | Total cluster carbon footprint (kg CO2) | Tiresias | 791 jobs testbed workload | Figure 8 & Section 8.2.1 | High | Proves the impact of just the Energy Efficiency setup (scalability throttling). |
+| **C3** | 12% peak power reduction and 25% total energy consumption decrease. | Peak Power (kW) & Total Energy (kWh) | Tiresias | 791 jobs testbed workload (UK CIC trace) | Figure 9b (Cluster Power timeline) & Sec 8.2.1 | High | Crucial for limiting cluster provisioning limits. |
+| **C4** | Comparable JCT to best baselines: 3.6 - 5.9% average JCT tradeoff. | Average Job Completion Time (hours) | Tiresias | 791 jobs testbed workload | Figure 8, Section 8.2.2 | High | Tradeoff predominantly paid by large/medium jobs (up to 6.9% increase); extra small jobs actually see -0.5% JCT. |
+| **C5** | GREEN outperforms Pollux significantly in carbon metrics (23.9% avg reduction). | Carbon Footprint (kg CO2) | Pollux | Subset of 150 structurally compatible testbed jobs | Figure 11 (a-d), Section 8.2.3 | Medium | Due to Pollux's hyperparameter coupling, workload size was dropped to 150 jobs, narrowing the comparison. |
+| **C6** | GREEN sustains 31.6% footprint reduction in year-long trace scaling. | Simulation Carbon Footprint | Tiresias | Year-long simulator (Alibaba trace, 146,000 jobs) | Figure 12 (Simulator results) | Medium-High | Validates adaptability across extreme seasonal variations. |
+| **C7** | GREEN reduces JCT compared to carbon-aware platforms (EcoVisor, GAIA) by 25.2%. | Average JCT (hours) | GAIA, EcoVisor | 791 jobs testbed workload | Section 8.2.1 | High | Proves EcoVisor/GAIA's idle-waiting strategy fails badly in heavily congested multi-tenant setups. |
