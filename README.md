@@ -159,19 +159,16 @@ These are implemented manually without STL shortcuts.
 
 ## Part 3: Machine Learning Intelligence
 
-The ML module operates asynchronously.
+The module relies solely on a Deep Reinforcement Learning (DRL) agent acting as a cluster scheduler to dynamically manage preemption based on the grid carbon state.
+
+All supervised prediction models have been dropped in favor of an end-to-end intelligent scheduling model.
 
 ### Features
 
-- Carbon intensity forecasting  
-- Workload classification  
-- Logical policy generation  
+- Dynamic Deep Reinforcement Learning (DRL) agent for priority sorting.
+- Balancing Job Completion Time against carbon limits.
 
-The model generates scheduling policies such as:
-
-```
-IF Carbon > Threshold AND Job = Batch THEN Hibernate
-```
+The model generates scheduling policies dynamically through the reinforcement environment.
 
 ---
 
