@@ -40,9 +40,5 @@ wheels/
 venv/
 env/
 
-# Data files (large datasets)
-data/*.csv
-data/*.xlsx
-
 # Logs
 *.log
