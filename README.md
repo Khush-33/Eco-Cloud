@@ -161,8 +161,6 @@ These are implemented manually without STL shortcuts.
 
 The module relies solely on a Deep Reinforcement Learning (DRL) agent acting as a cluster scheduler to dynamically manage preemption based on the grid carbon state.
 
-All supervised prediction models have been dropped in favor of an end-to-end intelligent scheduling model.
-
 ### Features
 
 - Dynamic Deep Reinforcement Learning (DRL) agent for priority sorting.
