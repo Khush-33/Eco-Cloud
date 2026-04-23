@@ -1,0 +1,5 @@
+weights,q_overall_score
+"{'carbon': 0.35, 'jct': 0.25, 'tail': 0.2, 'preempt': 0.1, 'starvation': 0.1}",0.24814318628787957
+"{'carbon': 0.45, 'jct': 0.2, 'tail': 0.15, 'preempt': 0.1, 'starvation': 0.1}",0.253041606204714
+"{'carbon': 0.35, 'jct': 0.2, 'tail': 0.25, 'preempt': 0.1, 'starvation': 0.1}",0.3938521748783379
+"{'carbon': 0.4, 'jct': 0.2, 'tail': 0.2, 'preempt': 0.1, 'starvation': 0.1}",0.5830317328685943

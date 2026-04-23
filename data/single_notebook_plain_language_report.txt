@@ -1,0 +1,3 @@
+For v1_clean, the best overall policy is srtf with overall score 0.1215. The strongest DRL variant is q_double_v2 at 0.2357, which is worse than SRTF by 0.1142 on this lower-is-better metric. Significance check: 3/3 DRL-vs-SRTF comparisons are statistically significant at 95% confidence.
+
+For v2_realworld, the best overall policy is srtf with overall score 0.1187. The strongest DRL variant is q_double_v2 at 0.2458, which is worse than SRTF by 0.1271 on this lower-is-better metric. Significance check: 3/3 DRL-vs-SRTF comparisons are statistically significant at 95% confidence.
