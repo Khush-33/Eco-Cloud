@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECO-CLOUD OS Engine Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #030303;
+            --bg-soft: #090909;
+            --panel: #0e0f11;
+            --panel-2: #141519;
+            --line: #21242b;
+            --line-2: #2a2f38;
+            --text: #f7f8fb;
+            --muted: #9ca3af;
+            --muted-2: #717986;
+            --accent: #00d5b0;
+            --accent-2: #33c3ff;
+            --accent-warm: #ffb347;
+            --warning: #ffcf70;
+            --success: #58e38b;
+            --danger: #ff6f7f;
+            --shadow: 0 26px 60px rgba(0, 0, 0, 0.52);
+            --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.35);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 520px at 8% -10%, rgba(0, 213, 176, 0.12), transparent 60%),
+                radial-gradient(900px 420px at 92% -12%, rgba(51, 195, 255, 0.14), transparent 58%),
+                radial-gradient(700px 320px at 50% 120%, rgba(255, 179, 71, 0.08), transparent 65%),
+                linear-gradient(180deg, #020202 0%, #050608 48%, #090b10 100%);
+            padding: 24px;
+            letter-spacing: 0.08px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 22px 22px;
+            mask-image: radial-gradient(circle at center, black 20%, transparent 95%);
+            z-index: 0;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border: 1px solid var(--line-2);
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+            backdrop-filter: blur(6px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 16px rgba(49, 215, 195, 0.8);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.35); opacity: 0.8; }
+        }
+
+        .brand h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.08rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .brand small {
+            display: block;
+            color: var(--muted);
+            font-size: 0.72rem;
+            letter-spacing: 0.35px;
+            text-transform: uppercase;
+        }
+
+        .hero {
+            padding: 28px;
+            border: 1px solid var(--line-2);
+            background:
+                linear-gradient(160deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01) 30%, rgba(255, 255, 255, 0) 75%),
+                linear-gradient(180deg, #0b0c0f 0%, #0d0f13 100%);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            margin-bottom: 22px;
+            animation: fadeUp 500ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -70px;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(51, 195, 255, 0.18), rgba(51, 195, 255, 0.01) 65%, transparent 75%);
+            pointer-events: none;
+        }
+
+        .hero h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.4rem, 2vw, 2rem);
+            margin-bottom: 8px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 0.97rem;
+            line-height: 1.65;
+            max-width: 980px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .controls {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            border: 1px solid transparent;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.2px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.18) 45%, transparent 70%);
+            transform: translateX(-130%);
+            transition: transform .45s ease;
+            pointer-events: none;
+        }
+
+        .btn:hover:not(:disabled)::after {
+            transform: translateX(130%);
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #031516;
+            border-color: rgba(0, 213, 176, 0.52);
+            box-shadow: 0 8px 20px rgba(0, 213, 176, 0.24);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(47, 158, 255, 0.28);
+        }
+
+        .btn-secondary {
+            background: #111319;
+            border-color: #2a3140;
+            color: #dce2ea;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            background: #161921;
+            border-color: #3a4352;
+        }
+
+        .status-pill {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #283140;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: #0d1016;
+            color: #d8dee7;
+            font-size: 0.86rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #9ca3af;
+            box-shadow: 0 0 10px rgba(156, 163, 175, 0.6);
+        }
+
+        .status-indicator.success {
+            background: var(--success);
+            box-shadow: 0 0 12px rgba(74, 222, 128, 0.8);
+        }
+
+        .status-indicator.failed {
+            background: var(--danger);
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.8);
+        }
+
+        .status-indicator.pending {
+            background: var(--warning);
+            box-shadow: 0 0 12px rgba(247, 185, 85, 0.8);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            border: 1px solid var(--line-2);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, var(--panel), var(--panel-2));
+            box-shadow: var(--shadow-soft);
+            padding: 18px;
+            animation: fadeUp 420ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 40%);
+            pointer-events: none;
+        }
+
+        .card h3 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 1.04rem;
+            letter-spacing: 0.2px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .card-sub {
+            color: var(--muted-2);
+            font-size: 0.78rem;
+            font-weight: 500;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .timeline-container {
+            max-height: 410px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .timeline-item {
+            border: 1px solid #27303d;
+            background: #10151c;
+            border-radius: var(--radius-sm);
+            padding: 12px 12px 11px;
+            margin-bottom: 10px;
+            position: relative;
+            transition: border-color .2s ease, transform .2s ease, background .2s ease;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 8px 0 0 8px;
+            background: linear-gradient(180deg, var(--accent), var(--accent-2));
+            opacity: 0.9;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(2px);
+            border-color: #425066;
+            background: #141c27;
+        }
+
+        .job-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .job-id {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #eaf0fa;
+        }
+
+        .mini {
+            font-size: 0.78rem;
+            color: #a2acbb;
+        }
+
+        .mode-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: .45px;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+
+        .mode-indicator.kernel {
+            color: #ffe0b3;
+            background: rgba(255, 179, 71, 0.14);
+            border-color: rgba(255, 179, 71, 0.62);
+        }
+
+        .mode-indicator.user {
+            color: #b5ebff;
+            background: rgba(51, 195, 255, 0.14);
+            border-color: rgba(51, 195, 255, 0.55);
+        }
+
+        .resource-status.granted {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .resource-status.denied {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .resource-gauge {
+            margin-bottom: 15px;
+        }
+
+        .gauge-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 7px;
+            font-size: 0.83rem;
+            color: var(--muted);
+        }
+
+        .gauge-label .label-value {
+            color: #dce5f3;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .gauge-bar {
+            width: 100%;
+            height: 22px;
+            border-radius: 7px;
+            border: 1px solid #2f3642;
+            background: #0b1016;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            width: 0;
+            transition: width .38s cubic-bezier(.4, 0, .2, 1);
+            position: relative;
+        }
+
+        .gauge-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.16) 35%, transparent 50%);
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(220%); }
+        }
+
+        .gauge-fill.solar {
+            background: linear-gradient(90deg, #ffcf70, #ffb347);
+        }
+
+        .gauge-fill.grid {
+            background: linear-gradient(90deg, #33c3ff, #74d9ff);
+        }
+
+        .gauge-fill.battery {
+            background: linear-gradient(90deg, #58e38b, #2fdc74);
+        }
+
+        .cpu-core-status {
+            border: 1px solid #2e3642;
+            border-radius: var(--radius-sm);
+            background: #101821;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .cpu-core-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .cpu-core-name {
+            font-weight: 700;
+            color: #dde6f3;
+            font-size: 0.88rem;
+        }
+
+        .cpu-core-job {
+            color: #98a9bd;
+            font-size: 0.78rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cpu-core-progress {
+            width: 100%;
+            height: 10px;
+            border: 1px solid #2c3644;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #0b0f15;
+        }
+
+        .cpu-core-progress-bar {
+            height: 100%;
+            transition: width 300ms ease;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 12px rgba(0, 213, 176, 0.45);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .stat-box {
+            border: 1px solid #2b3442;
+            border-radius: 12px;
+            background: #0f151e;
+            padding: 14px 10px;
+            text-align: center;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .stat-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #f4f8ff;
+            margin-bottom: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.4px;
+            text-shadow: 0 0 12px rgba(51, 195, 255, 0.16);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .queue-visualization {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+            gap: 10px;
+        }
+
+        .queue-item {
+            aspect-ratio: 1;
+            border-radius: 11px;
+            border: 1px solid #313949;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.2px;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+            background: #0f1620;
+            color: #b5c1cf;
+        }
+
+        .queue-item.new {
+            border-color: #3a4252;
+            color: #9ba9bc;
+            background: #111722;
+        }
+
+        .queue-item.ready {
+            border-color: rgba(247, 185, 85, 0.75);
+            color: #ffd49a;
+            background: rgba(247, 185, 85, 0.1);
+        }
+
+        .queue-item.running {
+            border-color: rgba(0, 213, 176, 0.92);
+            color: #bdfff4;
+            background: rgba(0, 213, 176, 0.14);
+            box-shadow: 0 0 16px rgba(0, 213, 176, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .queue-item.terminated {
+            border-color: rgba(74, 222, 128, 0.85);
+            color: #c5f8d4;
+            background: rgba(74, 222, 128, 0.12);
+        }
+
+        .queue-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.32);
+        }
+
+        .loading {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(3, 22, 27, 0.28);
+            border-top-color: #03161b;
+            border-radius: 999px;
+            display: inline-block;
+            animation: spin .75s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty {
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 18px 10px;
+            border: 1px dashed #2c3646;
+            border-radius: 10px;
+            background: #0f1722;
+        }
+
+        .timeline-container::-webkit-scrollbar,
+        #bankerStatus::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .timeline-container::-webkit-scrollbar-track,
+        #bankerStatus::-webkit-scrollbar-track {
+            background: #0d1117;
+            border-radius: 999px;
+        }
+
+        .timeline-container::-webkit-scrollbar-thumb,
+        #bankerStatus::-webkit-scrollbar-thumb {
+            background: #283041;
+            border-radius: 999px;
+        }
+
+        .timeline-container::-webkit-scrollbar-thumb:hover,
+        #bankerStatus::-webkit-scrollbar-thumb:hover {
+            background: #334057;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .status-pill {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero {
+                padding: 18px;
+            }
+
+            .controls {
+                gap: 8px;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 140px;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .status-pill {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="topbar">
+            <div class="brand">
+                <span class="brand-dot"></span>
+                <div>
+                    <h1>ECO-CLOUD OS ENGINE</h1>
+                    <small>Real-Time Scheduler & Resource Intelligence</small>
+                </div>
+            </div>
+        </div>
+
+        <section class="hero">
+            <h2>Live Kernel Telemetry Dashboard</h2>
+            <p>
+                Observe process lifecycle, CPU dispatching, mode switches, and Banker's Algorithm safety checks in one streamlined view.
+                Every card updates from simulation events in real time for intuitive debugging and analysis.
+            </p>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="runSimulation()" id="runBtn">Run Simulation</button>
+                <button class="btn btn-secondary" onclick="loadData()" id="reloadBtn">Reload Data</button>
+                <button class="btn btn-secondary" onclick="clearData()">Clear Data</button>
+
+                <div id="statusText" class="status-pill">
+                    <span class="status-indicator"></span>
+                    <span id="simStatus">Ready</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+            <section class="card">
+                <h3>
+                    <span>Job Timeline</span>
+                    <span class="card-sub mono">NEW → READY → RUNNING → TERMINATED</span>
+                </h3>
+                <div class="timeline-container" id="timeline">
+                    <div class="empty">No data loaded. Run simulation to start.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3>
+                    <span>Resource Allocation</span>
+                    <span class="card-sub mono">Solar | Grid | Battery</span>
+                </h3>
+
+                <div class="resource-gauge">
+                    <div class="gauge-label">
+                        <span>Solar Available</span>
+                        <span class="label-value" id="solarLabel"><span id="solarValue">0</span>W / 100W</span>
+                    </div>
+                    <div class="gauge-bar"><div class="gauge-fill solar" id="solarGauge"></div></div>
+                </div>
+
+                <div class="resource-gauge">
+                    <div class="gauge-label">
+                        <span>Grid Available</span>
+                        <span class="label-value" id="gridLabel"><span id="gridValue">0</span>W / 200W</span>
+                    </div>
+                    <div class="gauge-bar"><div class="gauge-fill grid" id="gridGauge"></div></div>
+                </div>
+
+                <div class="resource-gauge">
+                    <div class="gauge-label">
+                        <span>Battery Available</span>
+                        <span class="label-value" id="batteryLabel"><span id="batteryValue">0</span>W / 50W</span>
+                    </div>
+                    <div class="gauge-bar"><div class="gauge-fill battery" id="batteryGauge"></div></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3>
+                    <span>CPU Core Activity</span>
+                    <span class="card-sub mono">Per-Core Dispatch View</span>
+                </h3>
+                <div id="cpuCores">
+                    <div class="empty">No CPU data loaded.</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3>
+                    <span>Banker's Algorithm</span>
+                    <span class="card-sub mono">Safety Decisions</span>
+                </h3>
+                <div id="bankerStatus" class="timeline-container" style="max-height: 360px;">
+                    <div class="empty">No resource events recorded.</div>
+                </div>
+            </section>
+
+            <section class="card full-width">
+                <h3>
+                    <span>Simulation Metrics</span>
+                    <span class="card-sub mono">Aggregated Runtime Counters</span>
+                </h3>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label">Total Events</div></div>
+                    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label">Jobs Created</div></div>
+                    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label">Successful</div></div>
+                    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label">Resource Grants</div></div>
+                    <div class="stat-box"><div class="stat-value">0ms</div><div class="stat-label">Duration</div></div>
+                    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label">Denials</div></div>
+                </div>
+            </section>
+
+            <section class="card full-width">
+                <h3>
+                    <span>Process Queue Map</span>
+                    <span class="card-sub mono">State-Coded Queue Cards</span>
+                </h3>
+                <div class="queue-visualization" id="queueViz">
+                    <div class="empty" style="grid-column: 1 / -1;">No queue data available.</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let allEvents = [];
+        let allJobs = [];
+
+        const RESOURCE_CAPS = {
+            solar: 100,
+            grid: 200,
+            battery: 50
+        };
+
+        function setStatus(text, state = 'idle') {
+            const status = document.getElementById('simStatus');
+            const dot = document.querySelector('#statusText .status-indicator');
+            status.textContent = text;
+            dot.className = 'status-indicator';
+            if (state === 'success') dot.classList.add('success');
+            if (state === 'failed') dot.classList.add('failed');
+            if (state === 'pending') dot.classList.add('pending');
+        }
+
+        async function runSimulation() {
+            const btn = document.getElementById('runBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Running...';
+            setStatus('Simulation in progress...', 'pending');
+
+            try {
+                const response = await fetch('/api/simulation/run', { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error('Failed to start simulation');
+                }
+
+                let completed = false;
+                let attempts = 0;
+
+                while (!completed && attempts < 180) {
+                    await new Promise(r => setTimeout(r, 500));
+                    const statusResp = await fetch('/api/simulation/status');
+                    const status = await statusResp.json();
+                    if (!status.in_progress) completed = true;
+                    attempts++;
+                }
+
+                await loadData();
+                setStatus('Simulation completed', 'success');
+            } catch (error) {
+                console.error(error);
+                setStatus('Simulation start failed', 'failed');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Run Simulation';
+            }
+        }
+
+        async function loadData() {
+            try {
+                const [eventsResp, statsResp, timelineResp] = await Promise.all([
+                    fetch('/api/simulation/events'),
+                    fetch('/api/simulation/stats'),
+                    fetch('/api/simulation/timeline')
+                ]);
+
+                allEvents = (await eventsResp.json()).events || [];
+                const stats = await statsResp.json();
+                const timeline = await timelineResp.json();
+                allJobs = timeline.jobs || [];
+
+                updateTimeline();
+                updateResources();
+                updateCpuCores();
+                updateBankerStatus();
+                updateStatistics(stats);
+                updateQueueVisualization();
+
+                if (allEvents.length > 0) {
+                    setStatus(`Loaded ${allEvents.length} events`, 'success');
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                setStatus('Unable to load data', 'failed');
+            }
+        }
+
+        function updateTimeline() {
+            const container = document.getElementById('timeline');
+            if (allJobs.length === 0) {
+                container.innerHTML = '<div class="empty">No data loaded. Run simulation to start.</div>';
+                return;
+            }
+
+            container.innerHTML = allJobs.map(job => {
+                const lastState = job.states.length > 0 ? job.states[job.states.length - 1].to : 'UNKNOWN';
+                const currentMode = job.mode_history.length > 0
+                    ? job.mode_history[job.mode_history.length - 1].mode
+                    : 'USER';
+
+                return `
+                    <article class="timeline-item">
+                        <div class="job-row">
+                            <div class="job-id mono">${job.id}</div>
+                            <span class="mode-indicator ${String(currentMode).toLowerCase()}">${currentMode}</span>
+                        </div>
+                        <div class="mini">State: <strong>${lastState}</strong></div>
+                        <div class="mini">Duration: <span class="mono">${job.end_time - job.start_time}ms</span></div>
+                        <div class="mini">Resource: <span class="resource-status ${job.resource_status.toLowerCase()}">${job.resource_status}</span></div>
+                        <div class="mini">Process ID: <span class="mono">${job.process_id}</span></div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function getLatestResourceSnapshot() {
+            const resourceEvents = allEvents.filter(e =>
+                e.type === 'RESOURCE_GRANTED' ||
+                e.type === 'RESOURCE_DENIED' ||
+                e.type === 'RESOURCE_RELEASED'
+            );
+
+            if (resourceEvents.length === 0) {
+                return { sol: RESOURCE_CAPS.solar, grid: RESOURCE_CAPS.grid, bat: RESOURCE_CAPS.battery };
+            }
+
+            return resourceEvents[resourceEvents.length - 1];
+        }
+
+        function capValue(value, cap) {
+            if (typeof value !== 'number' || Number.isNaN(value)) return 0;
+            return Math.max(0, Math.min(value, cap));
+        }
+
+        function updateResources() {
+            const snapshot = getLatestResourceSnapshot();
+
+            const solarAvailableRaw = snapshot.sol ?? RESOURCE_CAPS.solar;
+            const gridAvailableRaw = snapshot.grid ?? RESOURCE_CAPS.grid;
+            const batteryAvailableRaw = snapshot.bat ?? RESOURCE_CAPS.battery;
+
+            const solarAvailable = capValue(solarAvailableRaw, RESOURCE_CAPS.solar);
+            const gridAvailable = capValue(gridAvailableRaw, RESOURCE_CAPS.grid);
+            const batteryAvailable = capValue(batteryAvailableRaw, RESOURCE_CAPS.battery);
+
+            const solarPercent = (solarAvailable / RESOURCE_CAPS.solar) * 100;
+            const gridPercent = (gridAvailable / RESOURCE_CAPS.grid) * 100;
+            const batteryPercent = (batteryAvailable / RESOURCE_CAPS.battery) * 100;
+
+            document.getElementById('solarValue').textContent = solarAvailable;
+            document.getElementById('gridValue').textContent = gridAvailable;
+            document.getElementById('batteryValue').textContent = batteryAvailable;
+
+            document.getElementById('solarGauge').style.width = `${solarPercent}%`;
+            document.getElementById('gridGauge').style.width = `${gridPercent}%`;
+            document.getElementById('batteryGauge').style.width = `${batteryPercent}%`;
+
+            const solarOverflow = Math.max(0, solarAvailableRaw - RESOURCE_CAPS.solar);
+            const gridOverflow = Math.max(0, gridAvailableRaw - RESOURCE_CAPS.grid);
+            const batteryOverflow = Math.max(0, batteryAvailableRaw - RESOURCE_CAPS.battery);
+
+            document.getElementById('solarLabel').textContent = `${solarAvailable}W / 100W${solarOverflow ? ` (+${solarOverflow})` : ''}`;
+            document.getElementById('gridLabel').textContent = `${gridAvailable}W / 200W${gridOverflow ? ` (+${gridOverflow})` : ''}`;
+            document.getElementById('batteryLabel').textContent = `${batteryAvailable}W / 50W${batteryOverflow ? ` (+${batteryOverflow})` : ''}`;
+        }
+
+        function updateCpuCores() {
+            const cores = {};
+
+            allEvents.forEach(event => {
+                if (event.type === 'STATE_TRANSITION' && event.core > 0) {
+                    if (!cores[event.core]) {
+                        cores[event.core] = {
+                            job: event.job,
+                            state: event.to,
+                            transitions: 0
+                        };
+                    }
+                    cores[event.core].job = event.job;
+                    cores[event.core].state = event.to;
+                    cores[event.core].transitions += 1;
+                }
+            });
+
+            const container = document.getElementById('cpuCores');
+            if (Object.keys(cores).length === 0) {
+                container.innerHTML = '<div class="empty">No CPU data loaded.</div>';
+                return;
+            }
+
+            container.innerHTML = Object.entries(cores).map(([coreId, core]) => {
+                let progress = 10;
+                if (core.state === 'RUNNING') progress = 72;
+                if (core.state === 'TERMINATED') progress = 100;
+
+                return `
+                    <div class="cpu-core-status">
+                        <div class="cpu-core-header">
+                            <span class="cpu-core-name">Core ${coreId}</span>
+                            <span class="cpu-core-job">${core.job || 'IDLE'}</span>
+                            <span class="mode-indicator user">${core.state || 'IDLE'}</span>
+                        </div>
+                        <div class="mini">Transitions: <span class="mono">${core.transitions}</span></div>
+                        <div class="cpu-core-progress">
+                            <div class="cpu-core-progress-bar" style="width:${progress}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateBankerStatus() {
+            const resourceEvents = allEvents.filter(e => String(e.type || '').includes('RESOURCE'));
+            const container = document.getElementById('bankerStatus');
+
+            if (resourceEvents.length === 0) {
+                container.innerHTML = '<div class="empty">No resource events recorded.</div>';
+                return;
+            }
+
+            const grouped = {};
+            resourceEvents.forEach(e => {
+                if (!grouped[e.job]) grouped[e.job] = [];
+                grouped[e.job].push(e);
+            });
+
+            container.innerHTML = Object.entries(grouped).map(([job, events]) => {
+                const last = events[events.length - 1];
+                const granted = last.type === 'RESOURCE_GRANTED';
+                return `
+                    <article class="timeline-item">
+                        <div class="job-row">
+                            <div class="job-id mono">${job}</div>
+                            <span class="status-indicator ${granted ? 'success' : 'failed'}"></span>
+                        </div>
+                        <div class="mini">Decision: <strong class="${granted ? 'resource-status granted' : 'resource-status denied'}">${granted ? 'SAFE / GRANTED' : 'UNSAFE / DENIED'}</strong></div>
+                        <div class="mini mono">Allocated → Solar ${last.asol || 0}W | Grid ${last.agrid || 0}W | Battery ${last.abat || 0}W</div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function updateStatistics(stats) {
+            const boxes = [
+                { value: stats.total_events ?? 0, label: 'Total Events' },
+                { value: stats.jobs_created ?? 0, label: 'Jobs Created' },
+                { value: stats.successful_jobs ?? 0, label: 'Successful' },
+                { value: stats.resource_grants ?? 0, label: 'Resource Grants' },
+                { value: `${stats.total_duration_ms ?? 0}ms`, label: 'Duration' },
+                { value: stats.resource_denials ?? 0, label: 'Denials' }
+            ];
+
+            document.getElementById('statsGrid').innerHTML = boxes.map(box => `
+                <div class="stat-box">
+                    <div class="stat-value">${box.value}</div>
+                    <div class="stat-label">${box.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateQueueVisualization() {
+            const container = document.getElementById('queueViz');
+            if (allJobs.length === 0) {
+                container.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No queue data available.</div>';
+                return;
+            }
+
+            container.innerHTML = allJobs.map(job => {
+                const state = (job.states.length > 0 ? job.states[job.states.length - 1].to : 'NEW').toLowerCase();
+                const code = job.id.split('_')[1] || job.id;
+                return `<div class="queue-item ${state}" title="${job.id}: ${state.toUpperCase()}">${code}</div>`;
+            }).join('');
+        }
+
+        async function clearData() {
+            if (!confirm('Clear all simulation data?')) return;
+
+            await fetch('/api/simulation/clear', { method: 'POST' });
+            allEvents = [];
+            allJobs = [];
+
+            document.getElementById('timeline').innerHTML = '<div class="empty">Data cleared.</div>';
+            document.getElementById('cpuCores').innerHTML = '<div class="empty">No CPU data loaded.</div>';
+            document.getElementById('bankerStatus').innerHTML = '<div class="empty">No resource events recorded.</div>';
+            document.getElementById('queueViz').innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No queue data available.</div>';
+            setStatus('Data cleared');
+            updateResources();
+            updateStatistics({
+                total_events: 0,
+                jobs_created: 0,
+                successful_jobs: 0,
+                resource_grants: 0,
+                total_duration_ms: 0,
+                resource_denials: 0
+            });
+        }
+
+        window.addEventListener('load', () => {
+            setStatus('Ready');
+            loadData();
+        });
+
+        setInterval(loadData, 2000);
+    </script>
+</body>
+</html>

@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include "PCB.h"
 #include "bankers_algorithm.h"
+#include "simulation_logger.h"
 
 #define QUEUE_CAPACITY 5
 #define TOTAL_JOBS 8
@@ -40,6 +41,7 @@ sem_t full_slots;               // Tracks filled slots in queue
 // --- SYSTEM CALL SIMULATION (Using Banker's Algorithm) ---
 void sim_request_resource(PCB* job, int watts_needed, int core_id) {
     job->mode = KERNEL_MODE; // Switch to Kernel Mode
+    log_mode_switch(job->job_id, "KERNEL");
     
     pthread_mutex_lock(&print_mutex);
     printf("      -> [SYSTEM CALL] Requesting %d Watts (Mode: KERNEL)\n", watts_needed);
@@ -61,6 +63,14 @@ void sim_request_resource(PCB* job, int watts_needed, int core_id) {
     if (bankers_request_resources(&bankers_state, process_id, req_solar, req_grid, req_battery)) {
         job->energy_allocated = 1; // Success
         
+        log_resource_request(job->job_id, process_id, req_solar, req_grid, req_battery,
+                           bankers_state.available[SOLAR_POWER],
+                           bankers_state.available[GRID_POWER],
+                           bankers_state.available[BATTERY_POWER],
+                           bankers_state.allocated[process_id][SOLAR_POWER],
+                           bankers_state.allocated[process_id][GRID_POWER],
+                           bankers_state.allocated[process_id][BATTERY_POWER], 1);
+        
         pthread_mutex_lock(&print_mutex);
         printf("      -> [HARDWARE] Access GRANTED (Safe State Maintained).\n");
         printf("      -> Allocated: Solar=%dW, Grid=%dW, Battery=%dW\n", req_solar, req_grid, req_battery);
@@ -72,6 +82,11 @@ void sim_request_resource(PCB* job, int watts_needed, int core_id) {
     } else {
         job->energy_allocated = 0; // Failure
         
+        log_resource_request(job->job_id, process_id, req_solar, req_grid, req_battery,
+                           bankers_state.available[SOLAR_POWER],
+                           bankers_state.available[GRID_POWER],
+                           bankers_state.available[BATTERY_POWER], 0, 0, 0, 0);
+        
         pthread_mutex_lock(&print_mutex);
         printf("      -> [HARDWARE] DENIED! Allocation leads to unsafe state.\n");
         printf("      -> (Deadlock avoidance: System protected)\n");
@@ -80,6 +95,7 @@ void sim_request_resource(PCB* job, int watts_needed, int core_id) {
     pthread_mutex_unlock(&energy_mutex);
     
     job->mode = USER_MODE; // Switch back to User Mode
+    log_mode_switch(job->job_id, "USER");
 }
 
 // --- RELEASE RESOURCES (When Process Terminates) ---
@@ -100,11 +116,14 @@ void* job_generator(void* arg) {
         new_job.energy_allocated = 0; // Default
         new_job.process_id = i - 1;  // Banker's Algorithm process ID
 
+        log_job_created(new_job.job_id, new_job.process_id);
+
         sem_wait(&empty_slots);
         pthread_mutex_lock(&queue_mutex);
         
         // Transition: NEW -> READY
         new_job.state = STATE_READY;
+        log_state_transition(new_job.job_id, 0, "NEW", "READY", "USER");
         ready_queue[queue_rear] = new_job;
         queue_rear = (queue_rear + 1) % QUEUE_CAPACITY;
         
@@ -160,6 +179,8 @@ void* cpu_core(void* core_id) {
         printf("      -> State Transition: [READY] -> [%s]\n", getStateName(current_job.state));
         pthread_mutex_unlock(&print_mutex);
         
+        log_state_transition(current_job.job_id, id, "READY", "RUNNING", "USER");
+        
         usleep(500000); // Context switch penalty (0.5 sec)
 
         // --- SYSTEM CALL FOR ENERGY ---
@@ -192,11 +213,19 @@ void* cpu_core(void* core_id) {
             printf("      -> [BANKER'S ALGORITHM] Releasing allocated resources for Process %d...\n", 
                    current_job.process_id);
             sim_release_resource(&current_job);
+            
+            log_resource_release(current_job.job_id, current_job.process_id,
+                               bankers_state.available[SOLAR_POWER],
+                               bankers_state.available[GRID_POWER],
+                               bankers_state.available[BATTERY_POWER]);
+            
             successful_jobs++;
         } else {
             printf("      -> Final Outcome: FAILED  (Energy Denied)\n");
             failed_jobs++;
         }
+        
+        log_state_transition(current_job.job_id, id, "RUNNING", "TERMINATED", "USER");
         printf("--------------------------------------------------\n");
         pthread_mutex_unlock(&print_mutex);
     }
@@ -208,6 +237,9 @@ int main() {
     printf("==================================================\n");
     printf(" ECO-CLOUD OS KERNEL \n");
     printf("==================================================\n");
+
+    // Initialize Logger
+    logger_init();
 
     // Initialize Mutexes and Semaphores
     pthread_mutex_init(&queue_mutex, NULL);
@@ -269,6 +301,12 @@ int main() {
     printf(" -> Total Resources Allocated  : %d jobs\n", jobs_allocated);
     bankers_print_state(&bankers_state);
     printf("==================================================\n");
+    
+    // Write events to JSON file for web visualization
+    logger_write_json("sim_events.json");
+    logger_cleanup();
+    printf("\n[VISUALIZATION] Events logged to: sim_events.json\n");
+    printf("[VISUALIZATION] Live events logged to: sim_events_live.jsonl\n");
 
     return 0;
 }
