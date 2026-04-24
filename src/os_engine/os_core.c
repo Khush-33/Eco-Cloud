@@ -6,6 +6,7 @@
 #include <semaphore.h>
 #include <unistd.h>
 #include "PCB.h"
+#include "bankers_algorithm.h"
 
 #define QUEUE_CAPACITY 5
 #define TOTAL_JOBS 8
@@ -25,6 +26,10 @@ int failed_jobs = 0;
 // Shared Energy Budget (Cooperating Processes)
 int global_energy_budget = 200; // Intentionally low (200W) so some jobs fail/deny
 
+// --- BANKER'S ALGORITHM STATE (Deadlock Avoidance) ---
+BankersAlgorithmState bankers_state;
+int jobs_allocated = 0;  // Track how many jobs have been allocated via Banker's Algorithm
+
 // --- CONCURRENCY PRIMITIVES ---
 pthread_mutex_t queue_mutex;    // Protects the Ready Queue
 pthread_mutex_t energy_mutex;   // Protects the Global Energy Budget
@@ -32,33 +37,56 @@ pthread_mutex_t print_mutex;    // Prevents terminal output from scrambling
 sem_t empty_slots;              // Tracks empty slots in queue
 sem_t full_slots;               // Tracks filled slots in queue
 
-// --- SYSTEM CALL SIMULATION ---
+// --- SYSTEM CALL SIMULATION (Using Banker's Algorithm) ---
 void sim_request_resource(PCB* job, int watts_needed, int core_id) {
     job->mode = KERNEL_MODE; // Switch to Kernel Mode
     
     pthread_mutex_lock(&print_mutex);
     printf("      -> [SYSTEM CALL] Requesting %d Watts (Mode: KERNEL)\n", watts_needed);
+    printf("      -> [BANKER'S ALGORITHM] Checking safe allocation for Process %d...\n", job->process_id);
     pthread_mutex_unlock(&print_mutex);
     
-    // CRITICAL SECTION: Modifying shared energy
+    // CRITICAL SECTION: Banker's Algorithm resource allocation
     pthread_mutex_lock(&energy_mutex);
-    if (global_energy_budget >= watts_needed) {
-        global_energy_budget -= watts_needed;
+    
+    int process_id = job->process_id;
+    
+    // Request energy spread across multiple resource types for realistic simulation
+    // Grid power is primary, solar as secondary, battery as backup
+    int req_grid = watts_needed;
+    int req_solar = watts_needed / 3;
+    int req_battery = watts_needed / 6;
+    
+    // Try allocation via Banker's Algorithm
+    if (bankers_request_resources(&bankers_state, process_id, req_solar, req_grid, req_battery)) {
         job->energy_allocated = 1; // Success
         
         pthread_mutex_lock(&print_mutex);
-        printf("      -> [HARDWARE] Access Granted. Remaining Grid Budget: %d W\n", global_energy_budget);
+        printf("      -> [HARDWARE] Access GRANTED (Safe State Maintained).\n");
+        printf("      -> Allocated: Solar=%dW, Grid=%dW, Battery=%dW\n", req_solar, req_grid, req_battery);
+        printf("      -> Available: Solar=%dW, Grid=%dW, Battery=%dW\n",
+               bankers_state.available[SOLAR_POWER],
+               bankers_state.available[GRID_POWER],
+               bankers_state.available[BATTERY_POWER]);
         pthread_mutex_unlock(&print_mutex);
     } else {
         job->energy_allocated = 0; // Failure
         
         pthread_mutex_lock(&print_mutex);
-        printf("      -> [HARDWARE] DENIED! Power Grid Overload Prevention Triggered.\n");
+        printf("      -> [HARDWARE] DENIED! Allocation leads to unsafe state.\n");
+        printf("      -> (Deadlock avoidance: System protected)\n");
         pthread_mutex_unlock(&print_mutex);
     }
     pthread_mutex_unlock(&energy_mutex);
     
     job->mode = USER_MODE; // Switch back to User Mode
+}
+
+// --- RELEASE RESOURCES (When Process Terminates) ---
+void sim_release_resource(PCB* job) {
+    pthread_mutex_lock(&energy_mutex);
+    bankers_release_resources(&bankers_state, job->process_id);
+    pthread_mutex_unlock(&energy_mutex);
 }
 
 // --- PRODUCER: JOB GENERATOR (ADMISSION CONTROL) ---
@@ -70,6 +98,7 @@ void* job_generator(void* arg) {
         new_job.state = STATE_NEW;
         new_job.mode = USER_MODE;
         new_job.energy_allocated = 0; // Default
+        new_job.process_id = i - 1;  // Banker's Algorithm process ID
 
         sem_wait(&empty_slots);
         pthread_mutex_lock(&queue_mutex);
@@ -86,6 +115,7 @@ void* job_generator(void* arg) {
         pthread_mutex_lock(&print_mutex);
         printf("\n[ADMISSION CONTROL] [+] %s Created & Queued.\n", new_job.job_id);
         printf("                    -> State Transition: [NEW] ->[%s]\n", getStateName(new_job.state));
+        printf("                    -> Process ID: %d (for Banker's Algorithm)\n", new_job.process_id);
         pthread_mutex_unlock(&print_mutex);
         
         sleep(1); // Delay between job arrivals
@@ -159,6 +189,9 @@ void* cpu_core(void* core_id) {
         
         if (current_job.energy_allocated == 1) {
             printf("      -> Final Outcome: SUCCESS (Energy Consumed)\n");
+            printf("      -> [BANKER'S ALGORITHM] Releasing allocated resources for Process %d...\n", 
+                   current_job.process_id);
+            sim_release_resource(&current_job);
             successful_jobs++;
         } else {
             printf("      -> Final Outcome: FAILED  (Energy Denied)\n");
@@ -183,6 +216,25 @@ int main() {
     
     sem_init(&empty_slots, 0, QUEUE_CAPACITY);
     sem_init(&full_slots, 0, 0);
+
+    // --- INITIALIZE BANKER'S ALGORITHM ---
+    bankers_init(&bankers_state, TOTAL_JOBS, MAX_RESOURCE_TYPES);
+    
+    // Set total available resources (Solar, Grid, Battery)
+    // These represent the total power available from different sources
+    bankers_set_available(&bankers_state, 100, 200, 50);  // 100W solar, 200W grid, 50W battery
+    
+    // Set maximum resource requirements for each job
+    // Each job may request up to these amounts
+    for (int i = 0; i < TOTAL_JOBS; i++) {
+        // Jobs will need up to 20W solar, 50W grid, 10W battery
+        bankers_set_maximum(&bankers_state, i, 20, 50, 10);
+    }
+    
+    printf("\n[BANKER'S ALGORITHM] Initialized with Deadlock Avoidance.\n");
+    printf("  Available Resources: Solar=100W, Grid=200W, Battery=50W\n");
+    printf("  Max per Job: Solar=20W, Grid=50W, Battery=10W\n");
+    printf("==================================================\n\n");
 
     // Create Threads
     pthread_t producer_thread;
@@ -212,8 +264,10 @@ int main() {
     printf(" EXECUTION SUMMARY:\n");
     printf(" -> Total Jobs Processed       : %d\n", TOTAL_JOBS);
     printf(" -> Successful Terminations    : %d\n", successful_jobs);
-    printf(" -> Failed Terminations        : %d (Energy not available)\n", failed_jobs);
-    printf(" -> Remaining Grid Budget      : %d W\n", global_energy_budget);
+    printf(" -> Failed Terminations        : %d (Unsafe allocation prevented)\n", failed_jobs);
+    printf("\n[BANKER'S ALGORITHM] Final State:\n");
+    printf(" -> Total Resources Allocated  : %d jobs\n", jobs_allocated);
+    bankers_print_state(&bankers_state);
     printf("==================================================\n");
 
     return 0;

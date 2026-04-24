@@ -31,6 +31,9 @@ typedef struct {
     // Eco-Profile Tracking
     double carbon_footprint;
     int energy_allocated;    // 1 if successful, 0 if denied
+    
+    // Banker's Algorithm Tracking
+    int process_id;          // ID for banker's algorithm resource tracking
 } PCB;
 
 // Helper to convert state enum to string for printing

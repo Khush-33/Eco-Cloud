@@ -91,9 +91,14 @@ graph TD
 
 ### Unit IV: Deadlocks
 
-- **Resource Modeling:** CPU cores, memory, and power.  
-- **Safe State Detection:** Ensures grid stability.  
-- **Banker’s Algorithm:** Prevents thermal and power overload.
+- **Resource Modeling:** CPU cores, memory, and power (Solar, Grid, Battery).  
+- **Resource Allocation Graph:** Tracks allocation and need across multiple resource types.  
+- **Safe State Detection:** Ensures grid remains in a safe state (all processes can complete).  
+- **Banker's Algorithm:** Sophisticated deadlock avoidance strategy that:
+  - Maintains maximum resource requirements per process
+  - Checks safety before each allocation
+  - Prevents unsafe allocations that could lead to deadlock
+  - Handles multiple energy sources simultaneously (Solar, Grid, Battery)
 
 ---
 
@@ -321,12 +326,21 @@ git checkout -b feature/your-task-name
         
         Core1->>Grid: pthread_mutex_lock(&energy_mutex)
         
-        alt Requested Watts <= Global Budget
-            Grid-->>Grid: Deduct Watts (Resource Allocated)
-        else Requested Watts > Global Budget
-            Note over Grid: Concept: Deadlock & Overload Avoidance
-            Grid-->>Grid: Deny Request (Prevent Grid Failure)
-            Note over Grid: [STATE: BLOCKED] (If waiting for power)
+        rect rgb(255, 240, 245)
+            Note over Grid: Concept: Banker's Algorithm (Deadlock Avoidance)
+            Grid->>Grid: bankers_request_resources()
+            
+            alt Allocation Does NOT Lead to Unsafe State
+                Grid-->>Grid: Tentatively Allocate Resources
+                Grid-->>Grid: bankers_is_safe() ➔ TRUE
+                Grid-->>Grid: GRANT Request (System remains safe)
+                Note over Grid: Resources allocated across [Solar, Grid, Battery]
+            else Allocation Would Break Safety
+                Grid-->>Grid: Rollback Tentative Allocation
+                Grid-->>Grid: bankers_is_safe() ➔ FALSE
+                Grid-->>Grid: DENY Request (Deadlock prevented)
+                Note over Grid: [STATE: BLOCKED] (Resource wait if needed)
+            end
         end
         
         Grid->>Core1: pthread_mutex_unlock(&energy_mutex)
